@@ -1,0 +1,191 @@
+that means we have multiple agents so if i will put in to run_config so all agent 
+will use run_config model and provider  ?
+am i right ?
+ChatGPT said:
+
+Yes — you’re right ✅ (at least, that’s the intended behavior in the Agents SDK design).
+
+Here’s the breakdown:
+
+🔹 What happens with RunConfig.model
+
+If you pass RunConfig(model=...) into Runner.run:
+
+That model is applied for the whole run.
+
+All agents involved in that run (including nested tool calls, etc.) should use that model + provider, instead of their own.
+
+So multiple agents will “share” the same run-level model/provider.
+
+🔹 What happens with Agent.model
+
+If you don’t pass a run-level model, then each agent uses its own model setting.
+
+That allows different agents in the same system to talk to different LLMs.
+
+🔹 Caveats
+
+In practice, there are some edge cases:
+
+In certain versions of the SDK, an Agent.model may override the run-level one (contrary to the docs).
+
+In nested runs (when one agent calls another agent as a tool), the inner agent might not inherit the outer run’s config unless you explicitly pass run_config down.
+
+That’s why, if you want all agents in a run to be forced to use the same backend (e.g. Gemini via your external_client), the safest way is:
+
+Put your Model object (with its client attached) into RunConfig.model.
+
+And pass that run_config every time you call Runner.run(...).
+
+✅ So your understanding is correct:
+If you set the model + provider in RunConfig, then all agents in that run will use it (unless overridden by a bug or nested run quirk).
+
+
+
+
+
+
+
+
+
+*****************************************************************************************************
+*****************************************************************************************************
+    🧭 Model/Provider Selection Flow         
+*****************************************************************************************************
+*****************************************************************************************************
+
+
+
+
+Runner.run(agent, input, run_config=?)
+
+STEP 1: Is a RunConfig provided?
+   └─ NO → Go to Step 4 (Agent-level or global default)
+   └─ YES → Step 2
+
+STEP 2: Does RunConfig.model exist?
+   └─ YES → Use this Model for ALL agents in the run
+             (Run-level override takes priority)
+   └─ NO → Step 3
+
+STEP 3: Does RunConfig.model_provider exist?
+   └─ YES → Agents may provide just a string (e.g. "gpt-4o-mini").
+             RunConfig.model_provider resolves it into a Model.
+   └─ NO → Fall back to Agent.model directly.
+
+STEP 4: Look at Agent.model
+   └─ If Agent.model is a Model object → use that (with its client).
+   └─ If Agent.model is a string → resolve with global/default client/provider.
+
+STEP 5: If no model/client found → use global defaults
+   └─ Global client set via set_default_openai_client(...)
+   └─ Global API shape set via set_default_openai_api(...)
+
+
+
+*****************************************************************************************************
+*****************************************************************************************************
+*****************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+🔹 RunConfig vs Global Default
+1. Run-level (RunConfig)
+
+Scope: Only applies to the specific Runner.run(...) call where you pass that run_config.
+
+Effect: All agents in that run will use the model + provider you set in RunConfig.model (or resolved via RunConfig.model_provider).
+
+Isolation: You can change the model/provider per run, without affecting other runs.
+
+👉 Think of this as a temporary override for just one execution.
+
+2. Global Default (set_default_openai_client)
+
+Scope: Applies to the whole process / app, unless overridden.
+
+Effect: Any agent that doesn’t have its own explicit model/client, and isn’t inside a run with a RunConfig, will fall back to the global default client.
+
+Persistence: Once set, it affects all subsequent runs and agents unless you override it with run-level config or per-agent models.
+
+👉 Think of this as the background default for everything.
+
+🔹 The Key Difference
+
+RunConfig = temporary, scoped override (per run).
+
+Global default = persistent, app-wide fallback.
+
+If you set both:
+
+RunConfig.model will always take precedence for that run.
+
+Agents without an explicit model will still use global defaults when no run-level model is supplied.
+
+📝 Example
+Global default only
+set_default_openai_client(gemini_client)
+
+agent1 = Agent(..., model="gemini-2.0-flash")  # string
+agent2 = Agent(..., model="gemini-2.0-flash")
+
+Runner.run_sync(agent1, "Hi")  # uses gemini_client
+Runner.run_sync(agent2, "Hi")  # uses gemini_client
+
+
+👉 Both agents always use Gemini, unless you change the global.
+
+RunConfig override
+openai_model = OpenAIChatCompletionsModel(model="gpt-4o-mini", openai_client=openai_client)
+config = RunConfig(model=openai_model)
+
+Runner.run_sync(agent1, "Hi", run_config=config)  
+
+
+👉 Even though the global default is Gemini, this run will use OpenAI because RunConfig.model overrides everything.
+
+✅ TL;DR
+
+Global default = persistent fallback for all agents and runs (unless overridden).
+
+RunConfig = temporary override for one Runner.run call; it forces all agents in that run to use the same model/provider.
+
+
+
+
+
+
+QUESTION FROM ME :so one Runner.run can take more agents a/c to your defintion 
+RunConfig = temporary override for one Runner.run call; it forces all agents in that run to use the same model/provider.
+ChatGPT said:
+
+
+
+Good catch 👀 — let’s clarify this carefully.
+
+🔹 What Runner.run actually runs
+
+Normally, you pass a single Agent into Runner.run / Runner.run_sync.
+That agent may internally call other agents (via agent.as_tool() or orchestration).
+So one Runner.run(...) run can involve multiple agents, even though you only start with one.
+
+👉 Example:
+
+assistant = Agent(..., model="gpt-4o-mini")
+math_agent = Agent(..., model="gpt-4o-mini").as_tool("math")
+
+assistant.add_tool(math_agent)
+
+# This call involves BOTH agents
+Runner.run_sync(assistant, "What's 2+2?")
+
+
+Here, Runner.run_sync starts with assistant, but during the run it calls math_agent.
+So technically, one run can span multiple agents.

@@ -1,0 +1,79 @@
+Quick TL;DR
+
+set_default_openai_api("chat_completions") chooses which OpenAI-style API shape the Agents SDK will call (Chat Completions vs the Responses API) — not the model. 
+
+
+set_tracing_disabled(True) turns off the SDK’s automatic trace export to OpenAI (useful when you’re using a non-OpenAI LLM endpoint like Gemini). 
+
+external_client = AsyncOpenAI(... base_url=...) creates a custom HTTP client that talks to the given base URL (here: Gemini’s OpenAI-compat endpoint). set_default_openai_client(external_client) makes that client the SDK’s global LLM client unless you override it per-model or per-run.
+
+
+
+
+Line-by-line explanation
+
+gemini_api_key = ""
+
+Placeholder: that must be a valid Gemini (Google) API key when you run this. If it’s empty, the HTTP client will fail authentication.
+
+set_tracing_disabled(True)
+
+The Agents SDK by default collects and uploads “traces” (execution data) to OpenAI’s tracing service. If you’re calling a non-OpenAI endpoint (e.g., Gemini via the OpenAI compatibility base URL) and you don’t have an OpenAI API key, trace export will fail. set_tracing_disabled(True) turns off that upload. Use this when you can’t/ don’t want to export traces to platform.openai.com. 
+OpenAI GitHub
++1
+
+set_default_openai_api("chat_completions")
+
+This selects the API shape the SDK will use for LLM calls. The SDK defaults to the newer Responses API; calling set_default_openai_api("chat_completions") tells the SDK to use the Chat Completions style calls instead. This is not selecting a model — the model is the model="..." string you pass later. You typically set this when using providers that don’t support the Responses API. 
+OpenAI GitHub
+
+external_client = AsyncOpenAI(
+    api_key=gemini_api_key,
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+)
+
+
+You create an AsyncOpenAI client instance configured to talk to a custom base_url. Google’s Gemini offers an OpenAI-compatible endpoint (that base URL) so OpenAI client libraries can target Gemini by changing base_url + providing a Gemini key. This client will issue HTTP requests to that endpoint. 
+Google AI for Developers
+
+set_default_openai_client(external_client)
+
+This sets the external_client as the global OpenAI client the Agents SDK will use, so calls made by Agent/Runner go through that client unless you override it on a per-model or per-run basis. (You can also attach a client directly to a model instance to override the global default.) 
+
+
+agent: Agent = Agent(name="Assistant", instructions="You are a helpful assistant", model="gemini-2.0-flash")
+
+Here you choose the model name. That string ("gemini-2.0-flash") will be sent to the LLM via the chosen API shape (chat_completions) and the configured client (your external_client pointing at Gemini).
+
+result = Runner.run_sync(agent, "Hello")
+
+The runner executes the agent loop. The SDK assembles a request using:
+
+the API shape you selected (chat_completions because of set_default_openai_api),
+
+the model name you passed (gemini-2.0-flash),
+
+and the HTTP client you configured globally with set_default_openai_client. The request goes to the Gemini OpenAI-compat endpoint we gave in base_url, and tracing is disabled so no trace export is attempted. 
+
+Important notes / common pitfalls
+
+set_default_openai_api ≠ model: it only switches API style (Responses vs Chat Completions). The actual model is the model parameter you pass to the agent. 
+
+Tracing problems are common when using third-party OpenAI-compatible endpoints (you’ll see 401/404 tracing errors if the SDK tries to upload traces but you don’t have an OpenAI key). Solutions: disable tracing, supply an OpenAI tracing API key, or use a custom trace processor. 
+
+
+Global client vs per-model client: set_default_openai_client sets a global default. If you want only some models to use the external client, construct a model object that accepts an openai_client= argument and pass the client there — that overrides the global. 
+
+Base URL must match provider’s compatibility doc: when using Gemini via the OpenAI compatibility interface, use the documented base URL (e.g. https://generativelanguage.googleapis.com/v1beta/openai/) and the proper key for Gemini. 
+Google AI for Developers
+
+
+
+
+
+
+
+✅ Main difference:
+
+set_default_openai_client() = sets a default client for everything (shortcut).
+OpenAIChatCompletionsModel() = actually defines which model to run and optionally which client to use.
