@@ -1,15 +1,15 @@
 import asyncio
-from dataclasses import dataclass
 import os
 
 from agents import Agent,trace,AsyncOpenAI,OpenAIChatCompletionsModel,RunContextWrapper, Runner,set_tracing_disabled, function_tool
 from dotenv import load_dotenv, find_dotenv
-from openai.types.responses import ResponseTextDeltaEvent
+
 
 
 
 async def main():
     load_dotenv(find_dotenv())
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
     gemini_api_key: str | None = os.environ.get("GOOGLE_API_KEY")
 
     set_tracing_disabled(disabled=False)
