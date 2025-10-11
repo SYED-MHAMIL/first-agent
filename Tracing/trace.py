@@ -8,7 +8,7 @@ from dotenv import load_dotenv, find_dotenv
 
 async def main():
     load_dotenv(find_dotenv())
-    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+    # os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
     gemini_api_key: str | None = os.environ.get("GOOGLE_API_KEY")
 
     set_tracing_disabled(disabled=False)
