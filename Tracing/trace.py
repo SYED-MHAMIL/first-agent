@@ -6,7 +6,6 @@ from dotenv import load_dotenv, find_dotenv
 
 
 
-
 async def main():
     load_dotenv(find_dotenv())
     os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
