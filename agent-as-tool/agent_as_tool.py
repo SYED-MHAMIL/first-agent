@@ -15,9 +15,22 @@ llm_provider : OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(model='ge
 spanish_Agent = Agent(name="Spanish translator",model=llm_provider, instructions="Translate the input text to Spanish.")
 french_Agent = Agent(name="French translator",model=llm_provider, instructions="Translate the input text to French.")
 
-agent = Agent(name="Orchestration",model=llm_provider,tools=[spanish_Agent.as_tool( tool_name="translate_to_spanish",
-            tool_description="Translate the user's message to Spanish.") , french_Agent.as_tool( tool_name="translate_to_french",
-            tool_description="Translate the user's message to French.")], instructions="Decide whether to translate the input text to Spanish or French based on the user's preference. Use the appropriate tool to perform the translation.", reset_tool_choice= )
+# Create tools for each agent
+spanish_Agent_tool = spanish_Agent.as_tool( 
+           tool_name="translate_to_spanish",
+           tool_description="Translate the user's message to Spanish.") , 
+
+french_Agent_tool = french_Agent.as_tool(
+           tool_name="translate_to_french",
+           tool_description="Translate the user's message to French.")
+
+agent = Agent(
+              name="Orchestration",
+              model=llm_provider,
+              tools=[spanish_Agent_tool, french_Agent_tool],
+              instructions="Decide whether to translate the input text to Spanish or French based on the user's preference. Use the appropriate tool to perform the translation.",
+
+           )
 
 
 async def main():
