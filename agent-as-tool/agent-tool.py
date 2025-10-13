@@ -1,8 +1,8 @@
-import asyncio
-import os
 
 from agents import Agent,trace,AsyncOpenAI,OpenAIChatCompletionsModel,RunContextWrapper, Runner,set_tracing_disabled, function_tool
 from dotenv import load_dotenv, find_dotenv
+import asyncio
+import os
 
 load_dotenv(find_dotenv())
 gemini_api_key: str | None = os.environ.get("GOOGLE_API_KEY")
@@ -17,6 +17,7 @@ llm_provider : OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(model='ge
 proofreader = Agent(
     name="Proofreader",
     instructions="Fix grammar and punctuation. Keep meaning. Reply only with the corrected text."
+    ,model=llm_provider
 )
 
 @function_tool
@@ -36,4 +37,6 @@ async def main():
     with trace("Proofreading workflow"): 
         result = await Runner.run(teacher_agent, "Please proofread this sentence: 'She dont know how to do it right'")
         print(f"Final Output: {result.final_output}")
-        
+
+
+asyncio.run(main())
