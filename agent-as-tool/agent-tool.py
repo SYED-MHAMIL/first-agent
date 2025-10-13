@@ -12,3 +12,28 @@ external_client: AsyncOpenAI = AsyncOpenAI(api_key=gemini_api_key, base_url="htt
 
 llm_provider : OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(model='gemini-2.5-flash', openai_client=external_client) 
 
+
+
+proofreader = Agent(
+    name="Proofreader",
+    instructions="Fix grammar and punctuation. Keep meaning. Reply only with the corrected text."
+)
+
+@function_tool
+async def proofread_text(text: str) -> str:
+    """Fix grammar and punctuation; return only corrected text."""
+    result = await Runner.run(proofreader, text, max_turns=3)
+    return str(result.final_output)
+
+# Main agent that uses the proofreader as just another tool
+teacher_agent = Agent(
+    name="Teacher",
+    instructions="Help students write clearly. Use tools when asked to fix text.",
+    tools=[proofread_text],
+)
+
+async def main():
+    with trace("Proofreading workflow"): 
+        result = await Runner.run(teacher_agent, "Please proofread this sentence: 'She dont know how to do it right'")
+        print(f"Final Output: {result.final_output}")
+        
