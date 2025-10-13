@@ -29,7 +29,6 @@ agent = Agent(
               model=llm_provider,
               tools=[spanish_Agent_tool, french_Agent_tool],
               instructions="Decide whether to translate the input text to Spanish or French based on the user's preference. Use the appropriate tool to perform the translation.",
-
            )
 
 
