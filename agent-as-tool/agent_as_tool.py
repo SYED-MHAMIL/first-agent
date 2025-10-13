@@ -16,11 +16,13 @@ spanish_Agent = Agent(name="Spanish translator",model=llm_provider, instructions
 french_Agent = Agent(name="French translator",model=llm_provider, instructions="Translate the input text to French.")
 
 # Create tools for each agent
-spanish_Agent_tool = spanish_Agent.as_tool( 
+spanish_Agent_tool = spanish_Agent.as_tool(
+    #   this is metadata about the tool this will help 
            tool_name="translate_to_spanish",
            tool_description="Translate the user's message to Spanish.") , 
 
 french_Agent_tool = french_Agent.as_tool(
+    #  this is metadata about the tool
            tool_name="translate_to_french",
            tool_description="Translate the user's message to French.")
 
