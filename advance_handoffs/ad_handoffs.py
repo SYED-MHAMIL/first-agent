@@ -1,6 +1,7 @@
-from agents import AsyncOpenAI,RunContextWrapper,handoff,OpenAIChatCompletionsModel, Runner,set_tracing_disabled, function_tool
+from agents import AsyncOpenAI,RunContextWrapper,Agent,handoff,OpenAIChatCompletionsModel, Runner,set_tracing_disabled, function_tool
 from dotenv import load_dotenv, find_dotenv
 import os
+import asyncio
 
 
 load_dotenv(find_dotenv())
@@ -15,7 +16,29 @@ def log_handoff_event(ctx: RunContextWrapper):
 
 
 
+specialist = Agent(name="Escalation Agent")
 
 custom_handoff = handoff(
+      agent= specialist ,
+      tool_name_override="escalate_to_specialist" ,
+      tool_description_override="Use this for complex issues that require a specialist.",
+       on_handoff=log_handoff_event,  
       
 )
+
+
+main_agent  = Agent(
+    name="Box",
+    instructions="you have to tranasfer  the money" ,
+    model=llm_provider ,
+    handoffs=[custom_handoff] , 
+    
+)
+
+
+async def main():
+ result =await Runner.run(main_agent,"My payment won't go through.")
+ print(result.final_output)
+
+
+asyncio.run(main())
