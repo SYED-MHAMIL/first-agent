@@ -12,23 +12,66 @@ set_tracing_disabled(disabled=True)
 external_client: AsyncOpenAI = AsyncOpenAI(api_key=gemini_api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
 llm_provider : OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(model='gemini-2.5-flash', openai_client=external_client) 
 
-billing_agent = Agent(name="Billing agent", instructions="Handle billing questions." ,model= llm_provider)
-refund_agent  = Agent(name="Refund agent",  instructions="Handle refunds.",model=llm_provider)
 
-triage_agent = Agent(
-    name="Triage agent",
+fitness_coach = Agent(
+    name="Fitness Coach",
     instructions=(
-        "Help the user with their questions. "
-        "If they ask about billing, handoff to the Billing agent. "
-        "If they ask about refunds, handoff to the Refund agent."
+        "You're a running coach. Ask 1-2 quick questions, then give a week plan. "
+        "Keep it simple and encouraging. No medical advice."
     ),
-    handoffs=[billing_agent, handoff(refund_agent)],  # either direct agent or `handoff(...)`
+    model= llm_provider
+)
+
+# Study Coach
+study_coach = Agent(
+    name="Study Coach",
+    instructions=(
+        "You're a study planner. Ask for current routine, then give a 1-week schedule. "
+        "Keep steps small and doable."
+    ),
     model= llm_provider
 )
 
 
-async def main():
-    result = await Runner.run(triage_agent, "I need to check refund status.")
-    print(result.final_output)
+router = Agent(
+    name="Coach Router",
+    instructions=(
+        "Route the user:\n"
+        "- If message is about running, workout, stamina → handoff to Fitness Coach.\n"
+        "- If it's about exams, study plan, focus, notes → handoff to Study Coach.\n"
+        "After handoff, the specialist should continue the conversation."
+    ),
+    model= llm_provider , 
+    handoffs=[study_coach, handoff(fitness_coach)],
+)
 
-asyncio.run(main())
+
+
+
+async def main():
+    r1 = await Runner.run(router, "I want to run a 5Km in 8 weeks. Can you help?")
+    print("\nTurn 1 (specialist reply):\n", r1.final_output)
+ 
+    # Grab the specialist that actually replied (Fitness Coach)
+    specialist = r1.last_agent
+
+    # ---- Turn 2: user answers the coach's follow-up; continue with SAME specialist
+    t2_input = r1.to_input_list() + [
+        {"role": "user", "content": "Right now I can jog about 2 km, 3 days per week."}
+    ]
+    r2 = await Runner.run(specialist, t2_input)
+
+    print("\nTurn 2 (specialist reply):\n", r2.final_output)
+
+    # ---- Turn 3: another follow-up; still same specialist
+    t3_input = r2.to_input_list() + [
+        {"role": "user", "content": "Nice. What should I eat on training days?"}
+    ]
+    r3 = await Runner.run(specialist, t3_input)
+    print("\nTurn 3 (specialist reply):\n", r3.final_output)
+
+
+    print(specialist)
+
+if __name__ == "__main__":
+    asyncio.run(main())
