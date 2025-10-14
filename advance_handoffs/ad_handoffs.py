@@ -12,11 +12,11 @@ external_client: AsyncOpenAI = AsyncOpenAI(api_key=gemini_api_key, base_url="htt
 llm_provider : OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(model='gemini-2.5-flash', openai_client=external_client) 
 
 def log_handoff_event(ctx: RunContextWrapper):
-    print(f"HNADOFF INITIATED:  Transferring to the Escalation Agent at {ctx.current_timestamp_ms}")
+    print(f"HNADOFF INITIATED:  Transferring to the Escalation Agent at")
 
 
 
-specialist = Agent(name="Escalation Agent")
+specialist = Agent(name="Escalation Agent", model=llm_provider)
 
 custom_handoff = handoff(
       agent= specialist ,
