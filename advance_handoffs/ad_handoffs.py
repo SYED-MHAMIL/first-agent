@@ -2,6 +2,7 @@ from agents import AsyncOpenAI,RunContextWrapper,Agent,handoff,OpenAIChatComplet
 from dotenv import load_dotenv, find_dotenv
 import os
 import asyncio
+from pydantic import BaseModel
 
 
 load_dotenv(find_dotenv())
@@ -16,14 +17,23 @@ def log_handoff_event(ctx: RunContextWrapper):
     print(f"HNADOFF INITIATED:  Transferring to the Escalation Agent at ")
 
 
+
+class EscalationData(BaseModel):
+    reason: str
+    order_id: str
+
+async def on_escalation(ctx: RunContextWrapper, input_data: EscalationData):
+    print(f"Escalating order {input_data.order_id} because: {input_data.reason}")
+
 specialist = Agent(name="Payment cleared", instructions="Clear the payment ", model=llm_provider)
 
 custom_handoff = handoff(
       agent= specialist ,
       tool_name_override="cleared_payment" ,
       tool_description_override="Use this for complex issues that require a specialist.",
-      on_handoff=log_handoff_event,  
-      
+      on_handoff= on_escalation,  
+      input_type=EscalationData, # The LLM must provide this data
+
 )
 
 
