@@ -11,24 +11,24 @@ set_tracing_disabled(disabled=True)
 external_client: AsyncOpenAI = AsyncOpenAI(api_key=gemini_api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/")
 llm_provider : OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(model='gemini-2.5-flash', openai_client=external_client) 
 
+
 def log_handoff_event(ctx: RunContextWrapper):
-    print(f"HNADOFF INITIATED:  Transferring to the Escalation Agent at")
+    print(f"HNADOFF INITIATED:  Transferring to the Escalation Agent at ")
 
 
-
-specialist = Agent(name="Escalation Agent", model=llm_provider)
+specialist = Agent(name="Payment cleared Agent", instructions="Clear the payment ", model=llm_provider)
 
 custom_handoff = handoff(
       agent= specialist ,
-      tool_name_override="escalate_to_specialist" ,
+      tool_name_override="cleared_payment" ,
       tool_description_override="Use this for complex issues that require a specialist.",
-       on_handoff=log_handoff_event,  
+      on_handoff=log_handoff_event,  
       
 )
 
 
 main_agent  = Agent(
-    name="Box",
+    name="Triage Agent",
     instructions="you have to tranasfer  the money" ,
     model=llm_provider ,
     handoffs=[custom_handoff] , 
