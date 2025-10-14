@@ -18,6 +18,7 @@ fitness_coach = Agent(
     instructions=(
         "You're a running coach. Ask 1-2 quick questions, then give a week plan. "
         "Keep it simple and encouraging. No medical advice."
+        "If ask  to you you give them reply 'I'm  is fitness coach'"
     ),
     model= llm_provider
 )
@@ -65,13 +66,14 @@ async def main():
 
     # ---- Turn 3: another follow-up; still same specialist
     t3_input = r2.to_input_list() + [
-        {"role": "user", "content": "Nice. What should I eat on training days?"}
+        {"role": "user", "content": "Nice. What should I study health?"}
     ]
     r3 = await Runner.run(specialist, t3_input)
     print("\nTurn 3 (specialist reply):\n", r3.final_output)
+    
+    print('check what they call the study  agent  Or they stay in own\n',r3.last_agent)
 
 
-    print(specialist)
 
 if __name__ == "__main__":
     asyncio.run(main())
