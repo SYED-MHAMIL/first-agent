@@ -43,22 +43,22 @@ faq_agent = Agent(name="FAQ agent" , model= llm_provider)
 
 handoffs_faq  =  handoff(
       agent=  faq_agent,
-      tool_name_override="cleared_payment" ,
-      tool_description_override="Use this for complex issues that require a specialist.",
+      tool_name_override="given_faq" ,
+      tool_description_override="faq_given",
       input_filter=  handoff_filters.remove_all_tools 
 )
 
 
 main_agent  = Agent(
     name="Triage Agent",
-    instructions="you have to tranasfer  the money" ,
+    instructions="assists user preference" ,
     model=llm_provider ,
     handoffs=[custom_handoff, handoffs_faq] 
     )
 
 
 async def main():
- result =await Runner.run(main_agent,"My payment won't go through.")
+ result =await Runner.run(main_agent,"My payment won't go through and give me FAQS.")
  print(result.final_output)
 
 

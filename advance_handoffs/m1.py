@@ -3,6 +3,8 @@ from dotenv import load_dotenv, find_dotenv
 import os
 from agents import Agent, Runner, handoff
 import asyncio
+from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
+
 
 
 load_dotenv(find_dotenv())
@@ -14,3 +16,5 @@ llm_provider : OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(model='ge
 
 
 
+
+print(RECOMMENDED_PROMPT_PREFIX)
