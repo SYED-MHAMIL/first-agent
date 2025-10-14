@@ -16,7 +16,7 @@ def log_handoff_event(ctx: RunContextWrapper):
     print(f"HNADOFF INITIATED:  Transferring to the Escalation Agent at ")
 
 
-specialist = Agent(name="Payment cleared Agent", instructions="Clear the payment ", model=llm_provider)
+specialist = Agent(name="Payment cleared", instructions="Clear the payment ", model=llm_provider)
 
 custom_handoff = handoff(
       agent= specialist ,
