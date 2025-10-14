@@ -1,5 +1,7 @@
 from agents import AsyncOpenAI,RunContextWrapper,Agent,handoff,OpenAIChatCompletionsModel, Runner,set_tracing_disabled, function_tool
 from dotenv import load_dotenv, find_dotenv
+from agents.extensions import handoff_filters
+
 import os
 import asyncio
 from pydantic import BaseModel
@@ -33,7 +35,17 @@ custom_handoff = handoff(
       tool_description_override="Use this for complex issues that require a specialist.",
       on_handoff= on_escalation,  
       input_type=EscalationData, # The LLM must provide this data
+       
+)
 
+
+faq_agent = Agent(name="FAQ agent" , model= llm_provider)
+
+handoffs_faq  =  handoff(
+      agent=  faq_agent,
+      tool_name_override="cleared_payment" ,
+      tool_description_override="Use this for complex issues that require a specialist.",
+      input_filter=  handoff_filters.remove_all_tools 
 )
 
 
@@ -41,9 +53,8 @@ main_agent  = Agent(
     name="Triage Agent",
     instructions="you have to tranasfer  the money" ,
     model=llm_provider ,
-    handoffs=[custom_handoff] , 
-    
-)
+    handoffs=[custom_handoff, handoffs_faq] 
+    )
 
 
 async def main():
