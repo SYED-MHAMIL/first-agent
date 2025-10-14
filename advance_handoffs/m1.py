@@ -15,6 +15,3 @@ external_client: AsyncOpenAI = AsyncOpenAI(api_key=gemini_api_key, base_url="htt
 llm_provider : OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(model='gemini-2.5-flash', openai_client=external_client) 
 
 
-
-
-print(RECOMMENDED_PROMPT_PREFIX)
