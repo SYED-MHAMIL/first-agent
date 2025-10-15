@@ -79,7 +79,7 @@ print(f"Summary: {result.final_output.summary}")
 print("\nEducation:")
 for edu in result.final_output.education:
     gpa_str = f", GPA: {edu.gpa}" if edu.gpa else ""
-    print(f"  • {edu.degree} from {edu.institution} ({edu.graduation_year}){gpa_str}")
+    print(f" • {edu.degree} from {edu.institution} ({edu.graduation_year}){gpa_str}")
 
 print("\nExperience:")
 for exp in result.final_output.experience:
