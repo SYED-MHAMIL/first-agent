@@ -5,8 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 from pydantic import BaseModel
 
 from agents import (
-    Agent,
-    
+    Agent,    
     GuardrailFunctionOutput,
     OutputGuardrailTripwireTriggered , 
     RunContextWrapper,
@@ -48,6 +47,7 @@ async def main():
         Be thorough but not overly sensitive to normal business information.
         """,
         output_type=SensitivityCheck,
+        model= llm_provider
     )
 
     @output_guardrail
@@ -74,6 +74,7 @@ async def main():
         instructions="Help customers with their questions. Be friendly and informative.",
         output_guardrails=[privacy_guardrail],  # Add our privacy check
         output_type=MessageOutput,
+        model= llm_provider
     )
 
     async def test_privacy_protection():
@@ -89,3 +90,9 @@ async def main():
             print("🛑 Response blocked - contained sensitive information!")
             # Send a generic response instead
             fallback_message = "I apologize, but I need to verify your identity before sharing account details."
+    
+    await test_privacy_protection()
+
+if __name__  == "__main__":
+    asyncio.run(main())
+
