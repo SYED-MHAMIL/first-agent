@@ -43,7 +43,8 @@ agent = Agent(
     name="MeetingSecretary",
     instructions="""Extract structured meeting minutes from meeting transcripts.
     Identify all key decisions, action items, and important details.""",
-    output_type=MeetingMinutes
+    output_type=MeetingMinutes ,
+    model= llm_provider
 )
 
 meeting_transcript = """
