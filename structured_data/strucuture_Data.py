@@ -3,7 +3,6 @@ import os
 from pydantic import  BaseModel
 from agents import Agent,ItemHelpers,AsyncOpenAI,OpenAIChatCompletionsModel,RunContextWrapper, Runner,set_tracing_disabled, function_tool
 from dotenv import load_dotenv, find_dotenv
-from openai.types.responses import ResponseTextDeltaEvent
 
 
 async def main():
