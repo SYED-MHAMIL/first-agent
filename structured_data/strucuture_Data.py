@@ -39,7 +39,7 @@ async def main():
     print("Name:", result.final_output.name)         # "Alice"
     print("Age:", result.final_output.age)           # 25
     print("Job:", result.final_output.occupation)    # "teacher"
-
+    print("data", result)
 
 
 if __name__  == "__main__":
