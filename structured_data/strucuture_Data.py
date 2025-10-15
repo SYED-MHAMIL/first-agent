@@ -24,12 +24,14 @@ async def main():
     name="InfoCollector",
     instructions="Extract person information from the user's message.",
     output_type=PersonInfo  # This is the magic!
+    , model= llm_provider
     )
 
     # Test it
-    result = Runner.run_sync(
+    result =await Runner.run(
         agent, 
         "Hi, I'm Alice, I'm 25 years old and I work as a teacher."
+        ,
     )
 
 # Now you get perfect structured data!
