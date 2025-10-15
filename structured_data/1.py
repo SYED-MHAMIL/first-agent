@@ -43,3 +43,5 @@ print("Price:", result.final_output.price)          # 999.99
 print("In Stock:", result.final_output.in_stock)    # True
 print("Categories:", result.final_output.categories) # ["electronics", "smartphones"]
 print("Reviews:", result.final_output.reviews_count) # 1247
+
+
