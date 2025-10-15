@@ -58,6 +58,7 @@ async def main():
     name="Customer Support Specialist",
     instructions="You are a helpful customer support agent for our software company.",
     input_guardrails=[math_guardrail],  # Attach our guardrail
+     model= llm_provider
      )
 
     async def test_homework_detection():
