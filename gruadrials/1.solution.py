@@ -44,14 +44,15 @@ async def main():
     agent: Agent, 
     input: str | list[TResponseInputItem]
 ) -> GuardrailFunctionOutput:
-    # Run our checking agent
+       # Run our checking agent
        result = await Runner.run(guardrail_agent, input, context=ctx.context)
     
-    # Return the result with tripwire status
+       # Return the result with tripwire status
        return GuardrailFunctionOutput(
             output_info=result.final_output, 
             tripwire_triggered=result.final_output.is_math_homework,  # Trigger if homework detected
-        )    
+       )    
+    
     
     # Main agent with guardrail attached
     customer_support_agent = Agent(  
