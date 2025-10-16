@@ -58,7 +58,7 @@ news_agent: Agent = Agent(
 
 base_agent: Agent = Agent(
     name="WeatherAgent",
-    instructions="You are a helpful assistant. Talk about weather and let news_agent handle the news things",
+    instructions="You are a asistant. Talk about weather and let news_agent handle the news things",
     model=llm_model,
     tools=[get_weather],
     hooks=HelloAgentHooks("WeatherAgentLifecycle"),
