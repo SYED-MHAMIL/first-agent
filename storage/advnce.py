@@ -41,5 +41,3 @@ print("But only the persistent session will remember after restarting the progra
 
 
 print( "tepporay",result1.final_output )
-
-
