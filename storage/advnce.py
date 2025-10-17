@@ -4,7 +4,7 @@ from agents import Agent, Runner , set_tracing_disabled ,SQLiteSession, OpenAICh
 
 # 🌿 Load environment variables
 load_dotenv(find_dotenv())
-
+set_tracing_disabled(True)
 # 🔐 Setup Gemini client
 GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
