@@ -13,3 +13,17 @@ texts = ["dog", "puppy", "car"]
 embeddings  = [client.embeddings.create(model='text-embedding-3-small' ,input=t) for t in texts]
 dimentions = len(embeddings)
 print(embeddings)
+
+
+
+
+
+
+
+
+# from  gimini can be done
+
+
+
+
+
