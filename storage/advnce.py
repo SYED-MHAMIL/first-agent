@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv, find_dotenv
-from agents import Agent, Runner, SQLiteSession, OpenAIChatCompletionsModel, AsyncOpenAI
+from agents import Agent, Runner , set_tracing_disabled ,SQLiteSession, OpenAIChatCompletionsModel, AsyncOpenAI
 
 # 🌿 Load environment variables
 load_dotenv(find_dotenv())
@@ -14,7 +14,7 @@ model = OpenAIChatCompletionsModel(model="gemini-2.5-flash", openai_client=exter
 
 # Temporary memory (lost when program ends)
 temp_session = SQLiteSession("temp_conversation")
-
+set_tracing_disabled(disabled= True)
 # Persistent memory (saved to file)
 persistent_session = SQLiteSession("user_123", "conversations.db")
 
