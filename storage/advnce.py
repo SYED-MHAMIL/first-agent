@@ -6,7 +6,7 @@ from agents import Agent, Runner, SQLiteSession, OpenAIChatCompletionsModel, Asy
 load_dotenv(find_dotenv())
 
 # 🔐 Setup Gemini client
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 external_client = AsyncOpenAI(api_key=GEMINI_API_KEY, base_url=BASE_URL)
