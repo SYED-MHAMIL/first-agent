@@ -48,3 +48,6 @@ result3 = Runner.run_sync(
     session=session
 )
 print("Agent:", result3.final_output)  # Should mention pizza!
+
+
+
