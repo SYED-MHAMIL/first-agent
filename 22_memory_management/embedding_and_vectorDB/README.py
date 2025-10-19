@@ -16,6 +16,3 @@ texts = ["dog", "puppy", "car"]
 embeddings  = [client.embeddings.create(model="text-embedding-3-small", input=t).data[0].embedding  for t in texts]
 dimentions = len(embeddings)
 print(embeddings)
-
-
-

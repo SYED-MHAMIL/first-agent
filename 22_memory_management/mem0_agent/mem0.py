@@ -4,7 +4,6 @@ from dotenv import load_dotenv, find_dotenv
 from agents import Agent, Runner, AsyncOpenAI, OpenAIChatCompletionsModel, set_tracing_disabled, function_tool, RunContextWrapper
 from agents.tool_context import ToolContext
 from dataclasses import dataclass
-
 from mem0 import MemoryClient
 
 @dataclass
@@ -19,7 +18,7 @@ set_tracing_disabled(True)
 # ONLY FOR TRACING
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 
-gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
+gemini_api_key: str = os.getenv("GOOGLE_API_KEY", "")
 mem_mem0_api_key = os.getenv("MEM0_API_KEY", "")
 mem_client = MemoryClient(api_key= mem_mem0_api_key)
 # 1. Which LLM Service?
