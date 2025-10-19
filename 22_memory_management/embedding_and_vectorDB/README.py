@@ -1,16 +1,20 @@
 import os
-from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
 import faiss
+import google.generativeai as genai
 import numpy as np
 
+
 load_dotenv(find_dotenv())
+genai.configure(api_key="GOOGLE_API_KEY")
+
+
+
+
 # 1. Get embeddings from OpenAI
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-client = OpenAI(api_key=GOOGLE_API_KEY)
 
 texts = ["dog", "puppy", "car"]
-embeddings  = [client.embeddings.create(model='text-embedding-3-small' ,input=t) for t in texts]
+embeddings  = [genai.embed_content(model="models/embedding-001", content=t)["embedding"] for t in texts]
 dimentions = len(embeddings)
 print(embeddings)
 
@@ -21,16 +25,6 @@ print(embeddings)
 
 
 
-# from  gimini can be done
-
-
-
-
-import google.generativeai as genai
-import numpy as np
-import faiss
-
-genai.configure(api_key="YOUR_GEMINI_API_KEY")
 
 
 
