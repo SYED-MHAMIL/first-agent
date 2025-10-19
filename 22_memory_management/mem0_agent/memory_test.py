@@ -131,7 +131,7 @@ llm_model: OpenAIChatCompletionsModel = OpenAIChatCompletionsModel(
 @function_tool
 def search_user_memory(context: ToolContext[UserContext], query: str):
     """Use this tool to search user memories."""
-    response = mem_client.search(query=query, user_id=context.context.username, top_k=3)
+    response = mem_client.search(query=query, filters={"user_id": context.context.username}, top_k=3)
     return response
 
 @function_tool
@@ -141,7 +141,7 @@ def save_user_memory(context: ToolContext[UserContext], query: str):
     return response
 
 async def dynamic_instructions_generator(context: RunContextWrapper[UserContext], agent: Agent[UserContext]) -> str:
-    response =await mem_client.search(query="General Behavior",     filters={"user_id": context.context.username},top_k=3)
+    response = mem_client.search(query="General Behavior", filters={"user_id": context.context.username},top_k=3)
     print(response)
     return f"""Helpful Agent that can answer questions. 
             Use search_user_memory to find information and save_user_memory to remember information.
