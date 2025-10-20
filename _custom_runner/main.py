@@ -17,7 +17,7 @@ client = AsyncOpenAI(
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
 )
 
-class CustomAgentRunner(AgentRunner):
+class CustomAgentRunner(AgentRunner):   
     async def run(self, starting_agent, input, **kwargs):
         # Custom preprocessing
         print(f"CustomAgentRunner.run()")
