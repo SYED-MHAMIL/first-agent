@@ -21,8 +21,8 @@ class CustomAgentRunner(AgentRunner):
     async def run(self, starting_agent, input, **kwargs):
         # Custom preprocessing
         print(f"CustomAgentRunner.run()")
-        print("starting point ",starting_agent)
-        print("starting point ",**kwargs)
+        # print("starting point ", starting_agent)
+        print("kwads ",kwargs)
         # input = await self.preprocess(input)
 
         
