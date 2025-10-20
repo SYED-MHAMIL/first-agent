@@ -47,7 +47,7 @@ async def start():
 @cl.on_message
 async def main(message: cl.Message):
     """Process incoming messages and generate responses."""
-    # Send a thinking message
+    Send a thinking message
     msg = cl.Message(content="Thinking...")
     await msg.send()
 
