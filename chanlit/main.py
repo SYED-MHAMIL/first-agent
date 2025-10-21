@@ -39,7 +39,7 @@ async def start():
     cl.user_session.set("chat_history", [])
 
     cl.user_session.set("config", config)
-    agent: Agent = Agent(name="Assistant", instructions="You are a helpful assistant", model=model)
+    agent: Agent = Agent(name="english Assistant", instructions="You are a helpful assistant", model=model)
     cl.user_session.set("agent", agent)
 
     await cl.Message(content="Welcome to the Panaversity AI Assistant! How can I help you today?").send()
@@ -49,7 +49,6 @@ async def main(message: cl.Message):
     """Process incoming messages and generate responses."""
     msg = cl.Message(content="Thinking...")
     await msg.send()
-
     agent: Agent = cast(Agent, cl.user_session.get("agent"))
     config: RunConfig = cast(RunConfig, cl.user_session.get("config"))
 
@@ -65,6 +64,7 @@ async def main(message: cl.Message):
         result = Runner.run_sync(starting_agent = agent,
                     input=history,
                     run_config=config)
+        
         
         response_content = result.final_output
         
@@ -83,4 +83,7 @@ async def main(message: cl.Message):
         msg.content = f"Error: {str(e)}"
         await msg.update()
         print(f"Error: {str(e)}")
+
+
+
 
