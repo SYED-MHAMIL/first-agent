@@ -112,9 +112,9 @@ async def main(message: cl.Message):
         # Update the session with the new history.
         cl.user_session.set("chat_history", history)
         
-        # Optional: Log the interaction
-        print(f"User: {message.content}")
-        print(f"Assistant: {response_content}")
+        # # Optional: Log the interaction
+        # print(f"User: {message.content}")
+        # print(f"Assistant: {response_content}")
         
     except Exception as e:
         msg.content = f"Error: {str(e)}"
