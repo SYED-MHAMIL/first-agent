@@ -1,3 +1,4 @@
+import asyncio
 import os
 from dotenv import load_dotenv, find_dotenv
 from agents import Agent,Runner,set_default_openai_api,set_default_openai_client,set_tracing_export_api_key
