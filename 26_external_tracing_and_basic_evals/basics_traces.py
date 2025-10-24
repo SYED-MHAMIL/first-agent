@@ -13,9 +13,9 @@ from langfuse import get_client
 # load  env
 load_dotenv(find_dotenv())
 gemini_api_key: str | None = os.environ.get("GOOGLE_API_KEY")
-os.get("LANGFUSE_SECRET_KEY")
-os.get("LANGFUSE_PUBLIC_KEY")
-os.get("LANGFUSE_HOST")
+os.getenv("LANGFUSE_SECRET_KEY")
+os.getenv("LANGFUSE_PUBLIC_KEY")
+os.getenv("LANGFUSE_HOST")
 
 
 external_client: AsyncOpenAI = AsyncOpenAI(api_key=gemini_api_key, base_url="https://generativelanguage.googleapis.com/v1beta/openai/") 
@@ -25,7 +25,7 @@ set_default_openai_api("chat_completions")
 
 # get the logs and traces
 
-OpenAIAgentsInstrumentor.instrument() 
+OpenAIAgentsInstrumentor().instrument() 
 
 # Verify connection
 
