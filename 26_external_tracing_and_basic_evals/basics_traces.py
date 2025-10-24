@@ -47,8 +47,8 @@ async def main():
     )
 
     result = await Runner.run(agent, "Tell me about recursion in programming.")
-    # print("\n--- Agent Response ---")
-    # print(result.final_output)
+    print("\n--- Agent Response ---")
+    print(result.final_output)
 
 
 # -----------------------------
