@@ -42,32 +42,41 @@ else:
 
 
 
-# Example function tool.
-@function_tool
-def get_city_weather(city: str) -> str:
-    return f"The weather in {city} is sunny."
+
 
 # -----------------------------
 # Define async main function
 
 
 async def main():
-    """Run an AI agent that replies in haikus."""
-    agent = Agent(
+    """Run an AI agent that replies in appropriate language."""
+    
+    english_agent = Agent(
         name="Assistant",
-        instructions="You only respond in haikus.",
+        instructions="You only respond in English.",
         model = "gemini-2.5-flash",
-        tools= [get_city_weather] 
+
     )
 
-    result = await Runner.run(agent, "What's the weather in Karachi ?.")
+    
+    spanish_agent = Agent(
+        name="Assistant",
+        instructions="You only respond in spanish.",
+        model = "gemini-2.5-flash",
+
+    )
+
+    
+    Triage_agent = Agent(
+        name="Assistant",
+        instructions="Handoff to the appropriate agent based on the language of the request.",
+        model = "gemini-2.5-flash",
+        handoffs= [english_agent,spanish_agent] 
+    )
+
+    result = await Runner.run(Triage_agent, "hola, cómo estás")
     print("\n--- Agent Response ---")
     print(result.final_output)
-
-    result = await Runner.run(agent, "What's the weather in Peshawar?")
-    print("\n--- Agent Response ---")
-    print(result.final_output)
-
 
 # -----------------------------
 # Entry point
