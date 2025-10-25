@@ -52,7 +52,7 @@ async def main():
     """Run an AI agent that replies in appropriate language."""
     
     english_agent = Agent(
-        name="Assistant",
+        name="English Assistant",
         instructions="You only respond in English.",
         model = "gemini-2.5-flash",
 
@@ -60,7 +60,7 @@ async def main():
 
     
     spanish_agent = Agent(
-        name="Assistant",
+        name="Spanish Assistant",
         instructions="You only respond in spanish.",
         model = "gemini-2.5-flash",
 
