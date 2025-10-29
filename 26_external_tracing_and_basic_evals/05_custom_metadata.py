@@ -40,6 +40,7 @@ set_tracing_export_api_key(openai_api_key)
 # -----------------------------
 langfuse = get_client()
 
+
 # Verify connection
 if langfuse.auth_check():
     print("✅ Langfuse client is authenticated and ready!")
@@ -53,7 +54,7 @@ else:
 @observe()
 async def main():
     """Run an AI agent that replies in haikus."""
-    input_text = "Tell me about recursion in programming."
+    input_text = "tell me about opwn ai. ?"
     
     agent = Agent(
         name="Assistant",
@@ -76,7 +77,7 @@ async def main():
             "model": "gemini-2.5-flash",
             "agent_type": "haiku_generator",
             "topic": "recursion"
-        },
+        },  
         version="1.0.0"
 
     )
@@ -94,6 +95,8 @@ async def main():
 # -----------------------------
 if __name__ == "__main__":
     asyncio.run(main())
-    
     # Flush events to ensure they're sent to Langfuse
     langfuse.flush()
+
+
+        
