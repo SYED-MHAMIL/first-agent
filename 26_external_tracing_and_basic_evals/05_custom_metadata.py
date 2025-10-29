@@ -96,6 +96,6 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
     # Flush events to ensure they're sent to Langfuse
-    # langfuse.flush()
+    langfuse.flush()
 
 
