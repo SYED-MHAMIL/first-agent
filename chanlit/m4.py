@@ -82,4 +82,4 @@ async def main(message: cl.Message):
 
     except Exception as e:
         await msg.update(content=f"Error: {str(e)}")
-        print(f"Error: {str(e)}")
+        # print(f"Error: {str(e)}")
