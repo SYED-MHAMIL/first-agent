@@ -68,7 +68,7 @@ async def main():
     t3_input = r2.to_input_list() + [
         {"role": "user", "content": "Nice. What should I study health?"}
     ]
-    r3 = await Runner.run(specialist, t3_input)
+    r3 = await Runner.run(specialist, t3_input ,)
     print("\nTurn 3 (specialist reply):\n", r3.final_output)
     
     print('check what they call the study  agent  Or they stay in own\n',r3.last_agent)

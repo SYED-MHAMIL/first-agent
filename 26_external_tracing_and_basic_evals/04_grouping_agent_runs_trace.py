@@ -15,12 +15,12 @@ load_dotenv(find_dotenv())  # Load local .env file
 OpenAIAgentsInstrumentor().instrument()
 
 # Load environment variables
+# --- Environment setup
 os.getenv("LANGFUSE_PUBLIC_KEY")
 os.getenv("LANGFUSE_SECRET_KEY")
 os.getenv("LANGFUSE_HOST")
 
 # Set OpenAI API key
-# --- Environment setup
 gemini_api_key = os.getenv("GOOGLE_API_KEY")
 openai_api_key = os.getenv("OPENAI_API_KEY")
 

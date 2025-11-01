@@ -8,7 +8,7 @@ from dotenv import load_dotenv, find_dotenv
 
 async def main():
     load_dotenv(find_dotenv())
-    # os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
     gemini_api_key: str | None = os.environ.get("GOOGLE_API_KEY")
 
     set_tracing_disabled(disabled=False)
@@ -18,10 +18,10 @@ async def main():
     agent = Agent(name="Joke generator",model=llm_provider, instructions="Tell funny jokes.")
 
     with trace("Joke workflow"): 
-        first_result = await Runner.run(agent, "Tell me a joke")
-        second_result = await Runner.run(agent, f"Rate this joke: {first_result.final_output}")
+        first_result = await Runner.run(agent, "Tell me a joke", max_turns=3)
+        # second_result = await Runner.run(agent, f"Rate this joke: {first_result.final_output}")
         print(f"Joke: {first_result.final_output}")
-        print(f"Rating: {second_result.final_output}")
+        # print(f"Rating: {second_result.final_output}")
 
 
 
