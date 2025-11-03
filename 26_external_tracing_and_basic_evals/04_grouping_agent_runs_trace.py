@@ -54,7 +54,7 @@ async def main():
     agent = Agent(
         name="Joke generator",
         instructions="Tell funny jokes.",
-        model = "gemini-2.5-flash",
+            model = "gemini-2.5-flash",
     )
 
     with trace("Joke workflow Generator"):
