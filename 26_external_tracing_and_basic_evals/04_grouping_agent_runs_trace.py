@@ -56,7 +56,7 @@ async def main():
         instructions="Tell funny jokes.",
             model = "gemini-2.5-flash",
     )
-
+#   open  ai tracing
     with trace("Joke workflow Generator"):
         first_result = await Runner.run(agent, "Tell me a joke about dog" 
         "")
