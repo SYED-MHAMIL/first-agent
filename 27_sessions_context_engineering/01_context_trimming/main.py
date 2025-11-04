@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import asyncio, os
 from dotenv import load_dotenv
 
@@ -12,18 +11,15 @@ load_dotenv()
 
 ROLE_USER = "user"
 
-def _is_user_msg(item: TResponseInputItem) -> bool:
+def _is_user_msg(item:TResponseInputItem)-> bool:
     """Return True if the item represents a user message."""
-    # Common dict-shaped messages
-    if isinstance(item, dict):
-        role = item.get("role")
-        if role is not None:
-            return role == ROLE_USER
-        # Some SDKs: {"type": "message", "role": "..."}
-        if item.get("type") == "message":
-            return item.get("role") == ROLE_USER
-    # Fallback: objects with a .role attr
-    return getattr(item, "role", None) == ROLE_USER
+    if isinstance(item,dict):
+       role = item.get("role")
+       if role is not None:
+           return ROLE_USER == role 
+       if item.get("type") == "message":
+           return item.get("role") == 
+
 
 
 class TrimmingSession(SessionABC):
@@ -85,12 +81,12 @@ class TrimmingSession(SessionABC):
 
         # Walk backward; when we hit the Nth user message, mark its index.
         for i in range(len(items) - 1, -1, -1):
-            if _is_user_msg(items[i]):
-                count += 1
-                if count == self.max_turns:
-                    start_idx = i
-                    break
-
+            # if _is_user_msg(items[i]):
+            #     count += 1
+            #     if count == self.max_turns:
+            #         start_idx = i
+            #         break
+            pass
         return items[start_idx:]
 
     # ---- Optional convenience API ----
