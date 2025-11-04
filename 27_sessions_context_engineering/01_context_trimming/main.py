@@ -18,7 +18,9 @@ def _is_user_msg(item:TResponseInputItem)-> bool:
        if role is not None:
            return ROLE_USER == role 
        if item.get("type") == "message":
-           return item.get("role") == 
+           return item.get("role") == ROLE_USER
+    
+    return getattr(item, "role", None) == ROLE_USER 
 
 
 
