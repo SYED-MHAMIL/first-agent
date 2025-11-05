@@ -90,7 +90,7 @@ class TrimmingSession(SessionABC):
 
     async def set_max_turns(self, max_turns: int) -> None:
         async with self._lock:
-            self.max_turns = max(1, int(max_turns))
+            self.max_turns = max(1,int(max_turns))
             trimmed = self._trim_to_last_turns(list(self._items))
             self._items.clear()
             self._items.extend(trimmed)
@@ -108,7 +108,7 @@ class TrimmingSession(SessionABC):
 
 def setup_gemini_model():
     """Configure Gemini model using OpenAI-compatible API."""
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GOOGLE_API_KEY")
 
     external_client = AsyncOpenAI(
         api_key=api_key,
