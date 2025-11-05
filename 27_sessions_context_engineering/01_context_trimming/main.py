@@ -5,10 +5,12 @@ from dotenv import load_dotenv
 from typing import Deque, List
 from collections import deque
 
-from agents import Agent, Runner, OpenAIChatCompletionsModel, AsyncOpenAI, SessionABC, TResponseInputItem
+from agents import Agent, Runner,set_tracing_disabled, OpenAIChatCompletionsModel, AsyncOpenAI
+from agents.items import TResponseInputItem
+from agents.memory.session import SessionABC
 
 load_dotenv()
-
+set_tracing_disabled(disabled=True)
 ROLE_USER = "user"
 
 def _is_user_msg(item:TResponseInputItem)-> bool:
@@ -33,7 +35,7 @@ class TrimmingSession(SessionABC):
     def __init__(self, session_id: str, max_turns: int = 8):
         self.session_id  = session_id
         self.max_turns = max(1,int(max_turns))
-        self._item = Deque[TResponseInputItem] = deque() 
+        self._items : Deque[TResponseInputItem] = deque() 
         self._lock = asyncio.Lock()
     
     
@@ -53,9 +55,6 @@ class TrimmingSession(SessionABC):
             self._items.clear()
             self._items.extend(trimmed)
     
-    
-    
-        
     # ---- SessionABC API  ----
     
     def _trim_to_last_turns(self,items: List[TResponseInputItem]) -> List[TResponseInputItem]:
@@ -82,10 +81,16 @@ class TrimmingSession(SessionABC):
          
         return items[start_idx:]    
     
+    async def pop_item(self) -> TResponseInputItem | None:
+        """Remove and return the most recent item (post-trim)."""
+        async with self._lock:
+            return self._items.pop() if self._items else None
 
-    
-
-
+    async def clear_session(self) -> None:
+        """Remove all items for this session."""
+        async with self._lock:
+            self._items.clear()
+            
     # ---- Optional convenience API ----
 
     async def set_max_turns(self, max_turns: int) -> None:
