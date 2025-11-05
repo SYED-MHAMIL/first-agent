@@ -31,41 +31,37 @@ class TrimmingSession(SessionABC):
     A turn = a user message and all subsequent items (assistant/tool calls/results)
     up to (but not including) the next user message.
     """
-
     def __init__(self, session_id: str, max_turns: int = 8):
-        self.session_id = session_id
-        self.max_turns = max(1, int(max_turns))
-        self._items: Deque[TResponseInputItem] = deque()  # chronological log
+        self.session_id  = session_id
+        self.max_turns = max(1,int(max_turns))
+        self._item = Deque[TResponseInputItem] = deque() 
         self._lock = asyncio.Lock()
+        
+        
+        
+    # ---- SessionABC API  ----
+    
+    def _trim_to_last_turns(self,items: List[TResponseInputItem]) -> List[TResponseInputItem]:
+        """
+        Keep only the suffix containing the last `max_turns` user messages and everything after
+        the earliest of those user messages.
 
-    # ---- SessionABC API ----
-
-    async def get_items(self, limit: int | None = None) -> List[TResponseInputItem]:
-        """Return history trimmed to the last N user turns (optionally limited to most-recent `limit` items)."""
-        async with self._lock:
-            trimmed = self._trim_to_last_turns(list(self._items))
-            return trimmed[-limit:] if (limit is not None and limit >= 0) else trimmed
-
-    async def add_items(self, items: List[TResponseInputItem]) -> None:
-        """Append new items, then trim to last N user turns."""
+        If there are fewer than `max_turns` user messages (or none), keep all items.
+        """
         if not items:
-            return
-        async with self._lock:
-            self._items.extend(items)
-            trimmed = self._trim_to_last_turns(list(self._items))
-            self._items.clear()
-            self._items.extend(trimmed)
+            return items
+        
+        count = 0
+        start_idx =  0  
+        
+    
+    
+    
+    
+    
+    
 
-    async def pop_item(self) -> TResponseInputItem | None:
-        """Remove and return the most recent item (post-trim)."""
-        async with self._lock:
-            return self._items.pop() if self._items else None
-
-    async def clear_session(self) -> None:
-        """Remove all items for this session."""
-        async with self._lock:
-            self._items.clear()
-
+ 
     # ---- Helpers ----
 
     def _trim_to_last_turns(self, items: List[TResponseInputItem]) -> List[TResponseInputItem]:
