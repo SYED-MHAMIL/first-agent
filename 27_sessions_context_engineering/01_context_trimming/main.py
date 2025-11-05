@@ -54,7 +54,14 @@ class TrimmingSession(SessionABC):
         count = 0
         start_idx =  0  
         
-    
+        for i in range(len(items)-1 , -1, -1) :
+            if  _is_user_msg(items[i]):
+                count+=1
+                if count == self.max_turns:
+                  start_idx =i
+                  break
+         
+        return items[start_idx:]    
     
     
     
@@ -184,4 +191,4 @@ async def main():
 # Pass `history` into your agent runner / responses call as the conversation context.
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main())  
