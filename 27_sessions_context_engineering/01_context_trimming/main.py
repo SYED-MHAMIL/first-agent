@@ -42,7 +42,19 @@ class TrimmingSession(SessionABC):
         async with self._lock:
             trimmed = self._trim_to_last_turns(list(self._items))
             return trimmed[-limit:] if (limit is not None and limit >= 0) else trimmed        
-        
+    
+    async def add_items(self, items: List[TResponseInputItem]) -> None:
+        """ Append new items, then trim to last N user turns. """
+        if not items:
+            return
+        async with self._lock:
+            self._items.extend(items)
+            trimmed = self._trim_to_last_turns(list(self._items))
+            self._items.clear()
+            self._items.extend(trimmed)
+    
+    
+    
         
     # ---- SessionABC API  ----
     
@@ -53,10 +65,7 @@ class TrimmingSession(SessionABC):
 
         If there are fewer than `max_turns` user messages (or none), keep all items.
         """
-        
-        
-        
-        
+    
         
         if not items:
             return items
@@ -74,7 +83,7 @@ class TrimmingSession(SessionABC):
         return items[start_idx:]    
     
 
-
+    
 
 
     # ---- Optional convenience API ----
