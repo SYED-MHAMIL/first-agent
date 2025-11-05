@@ -23,7 +23,6 @@ def _is_user_msg(item:TResponseInputItem)-> bool:
     return getattr(item, "role", None) == ROLE_USER 
 
 
-
 class TrimmingSession(SessionABC):
     """
     Keep only the last N *user turns* in memory.
@@ -36,7 +35,13 @@ class TrimmingSession(SessionABC):
         self.max_turns = max(1,int(max_turns))
         self._item = Deque[TResponseInputItem] = deque() 
         self._lock = asyncio.Lock()
-        
+    
+    
+    async def get_items(self, limit: int | None = None) -> List[TResponseInputItem]:
+        """Return history trimmed to the last N user turns (optionally limited to most-recent `limit` items)."""
+        async with self._lock:
+            trimmed = self._trim_to_last_turns(list(self._items))
+            return trimmed[-limit:] if (limit is not None and limit >= 0) else trimmed        
         
         
     # ---- SessionABC API  ----
@@ -48,6 +53,11 @@ class TrimmingSession(SessionABC):
 
         If there are fewer than `max_turns` user messages (or none), keep all items.
         """
+        
+        
+        
+        
+        
         if not items:
             return items
         
@@ -63,36 +73,9 @@ class TrimmingSession(SessionABC):
          
         return items[start_idx:]    
     
-    
-    
-    
-    
 
- 
-    # ---- Helpers ----
 
-    def _trim_to_last_turns(self, items: List[TResponseInputItem]) -> List[TResponseInputItem]:
-        """
-        Keep only the suffix containing the last `max_turns` user messages and everything after
-        the earliest of those user messages.
 
-        If there are fewer than `max_turns` user messages (or none), keep all items.
-        """
-        if not items:
-            return items
-
-        count = 0
-        start_idx = 0  # default: keep all if we never reach max_turns
-
-        # Walk backward; when we hit the Nth user message, mark its index.
-        for i in range(len(items) - 1, -1, -1):
-            # if _is_user_msg(items[i]):
-            #     count += 1
-            #     if count == self.max_turns:
-            #         start_idx = i
-            #         break
-            pass
-        return items[start_idx:]
 
     # ---- Optional convenience API ----
 
@@ -191,4 +174,4 @@ async def main():
 # Pass `history` into your agent runner / responses call as the conversation context.
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())
