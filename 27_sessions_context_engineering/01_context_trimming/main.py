@@ -50,11 +50,13 @@ class TrimmingSession(SessionABC):
         if not items:
             return
         async with self._lock:
+            print("hwen and how calls ?")
             self._items.extend(items)
             trimmed = self._trim_to_last_turns(list(self._items))
             self._items.clear()
             self._items.extend(trimmed)
     
+        
     # ---- SessionABC API  ----
     
     def _trim_to_last_turns(self,items: List[TResponseInputItem]) -> List[TResponseInputItem]:
@@ -64,7 +66,6 @@ class TrimmingSession(SessionABC):
 
         If there are fewer than `max_turns` user messages (or none), keep all items.
         """
-    
         
         if not items:
             return items
@@ -141,7 +142,7 @@ support_agent = Agent(
     name="Support Assistant",
     model=llm_model,
     instructions=(
-        "You are a patient IT support assistant. "
+        "You are a patient IT support assistant. " 
         "Help users troubleshoot issues step by step. "
         "Be concise and ask one question at a time."
     )
@@ -161,7 +162,7 @@ async def main():
     history = await session.get_items()
     print(f"\n\n[HISTORY]: {history}\n\n")
 
-    # Example flow
+    # Example flow and this will call by agents so don't need to manually 
     await session.add_items([{"role": "user", "content": "I am using a macbook pro and it has some overheating issues too."}])
     await session.add_items([{"role": "assistant", "content": "I see. Let's check your firmware version."}])
     await session.add_items([{"role": "user", "content": "Firmware v1.0.3; still failing."}])
@@ -170,7 +171,7 @@ async def main():
     await session.add_items([{"role": "assistant", "content": "Leave it on charge for 30 minutes in case the battery is critically low. Is there any other error message?"}])
     await session.add_items([{"role": "user", "content": "Yes, I see error 404 now."}])
     await session.add_items([{"role": "assistant", "content": "Do you see it on the browser while accessing a website?"}])
-    # At this point, with max_turns=3, everything *before* the earliest of the last 3 user
+    # At this point, with   max_turns=3, everything *before* the earliest of the last 3 user
     # messages is summarized into a synthetic pair, and the last 3 turns remain verbatim.
 
     history = await session.get_items()
@@ -181,7 +182,7 @@ async def main():
     result = await Runner.run(
         support_agent,
         "Share total messages I sent on this session right",
-        session=session
+        session=session 
     )
     print(f"\nAssistant: {result.final_output}\n")
 
