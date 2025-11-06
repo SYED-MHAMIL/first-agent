@@ -56,7 +56,7 @@ class TrimmingSession(SessionABC):
             self._items.clear()
             self._items.extend(trimmed)
     
-        
+
     # ---- SessionABC API  ----
     
     def _trim_to_last_turns(self,items: List[TResponseInputItem]) -> List[TResponseInputItem]:
