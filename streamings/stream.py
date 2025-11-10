@@ -23,6 +23,9 @@ async def main():
 
     print("Raw response events\n")
 
+#  you
+
+
     # agent = Agent(
     # name="Joker",
     # instructions=  "You are a helpful assistant. First, determine how many jokes to tell, then provide jokes.",
@@ -34,7 +37,7 @@ async def main():
     # async for event in result.stream_events():
     #     if event.type == "raw_response_event" and isinstance(event.data,ResponseTextDeltaEvent):   
     #        print(event.data.delta, end="", flush=True)
-
+    
     
     print("*"*30)
     print("Run item events and agent event:\n")

@@ -60,36 +60,40 @@ class LLMSummarizer:
             Tuple[str, str]: The shadow user line to keep dialog natural,
             and the model-generated summary text.
         """
+        
+        
         user_shadow = "Summarize the conversation we had so far."
         TOOL_ROLES = {"tool", "tool_result"}
-
-        def to_snippet(m: TResponseInputItem) -> str | None:
-            role = (m.get("role") or "assistant").lower()
-            content = (m.get("content") or "").strip()
+        
+        def to_snippet(m:TResponseInputItem)->str | None :
+            
+            role = (m.get("role") or  'assistant').lower()
+            content =  (m.get("content") or "").strip()
+            
             if not content:
-                return None
-            # Trim verbose tool outputs to keep prompt compact    
-            if role in TOOL_ROLES and len(content) > self.tool_trim_limit:
-                content = content[: self.tool_trim_limit] + " …"
-            return f"{role.upper()}: {content}"
-
-        # Build compact, trimmed history
-        history_snippets = [s for m in messages if (s := to_snippet(m))]
-
-        # Build the user message with conversation history
-        user_message = "\n".join(history_snippets)
-
-        # Use Runner.run with the agent (which has instructions set)
-        resp = await Runner.run(
-            self.client,
-            user_message,  # Just pass the string, agent already has instructions
-            run_config=RunConfig(
-                model_settings=ModelSettings(
+                return None 
+            
+            if role in TOOL_ROLES and len(content)  > self.tool_trim_limit :
+                content =  content[:self.tool_trim_limit]
+            return  f'{role.upper()}: {content}'
+            
+        
+        histotry_converssation = [s for msg in messages if (s:=to_snippet(msg))]    
+            
+        user_message =  "\n".join(histotry_converssation)     
+        
+        response = Runner.run(
+              self.client,
+              user_message,
+              run_config=RunConfig(
+                  model_settings =ModelSettings(
                     max_output_tokens=self.max_tokens
                 )
-            )
+              )
+            
         )
-
-        summary = resp.final_output
+        
+        summary =  response.final_output 
         await asyncio.sleep(0)  # yield control
         return user_shadow, summary
+        

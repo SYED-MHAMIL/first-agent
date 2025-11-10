@@ -21,7 +21,7 @@ def set_gimini_model():
     )   
 
 llm_model  = set_gimini_model()
-based_agent = Agent(
+base_agent = Agent(
         name =  "Base Agent", 
         model = llm_model
 )
