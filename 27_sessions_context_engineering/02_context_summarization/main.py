@@ -111,6 +111,8 @@ class SummarizingSession:
             # Ensure all real user/assistant messages explicitly have synthetic=False
             self._normalize_synthetic_flags_locked()
 
+
+
     async def pop_item(self) -> Optional[Dict[str, Any]]:
         """Pop the latest message (model-safe), if any."""
         async with self._lock:
@@ -118,6 +120,7 @@ class SummarizingSession:
                 return None
             rec = self._records.pop()
             return dict(rec["msg"])
+
 
     async def clear_session(self) -> None:
         """Remove all records."""
@@ -180,8 +183,6 @@ class SummarizingSession:
             return {k:v  for k,v in  msg.items() if k in  SummarizingSession._ALLOWED_MSG_KEYS
                 }
 
-        
-    
     
     @staticmethod
     def _is_real_user_turn_start(rec: Record) -> bool:

@@ -49,7 +49,7 @@ class TrimmingSession(SessionABC):
         if not items:
             return
         async with self._lock:
-            print("hwen and how calls ?")
+            print("items for cast",items)
             self._items.extend(items)
             trimmed = self._trim_to_last_turns(list(self._items))
             self._items.clear()
