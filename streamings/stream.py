@@ -71,17 +71,8 @@ async def main():
                 pass  # Ignore other event types
 
     print("=== Run complete ===")
-
-
-
-
-
-
     print("\n🎉 You've learned streaming!")
     print("💡 Try changing the functions and see what happens!")
-
-
-
 
 
 if __name__  == "__main__":
