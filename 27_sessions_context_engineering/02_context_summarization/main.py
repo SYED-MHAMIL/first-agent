@@ -13,6 +13,7 @@ class SummarizingSession:
     - A *turn* starts at a real user message and includes everything until the next real user message.
     - When the number of real user turns exceeds `context_limit`, everything before the earliest
       of the last `keep_last_n_turns` user-turn starts is summarized into a synthetic user→assistant pair.
+    
     - Stores full records (message + metadata). Exposes:
         • get_items():           model-safe messages only (no metadata)
         • get_full_history():    [{"message": msg, "metadata": meta}, ...]
@@ -22,32 +23,36 @@ class SummarizingSession:
     _ALLOWED_MSG_KEYS = {"role", "content", "name"}
 
     def __init__(
-        self,
-        keep_last_n_turns: int = 3,
-        context_limit: int = 3,
-        summarizer: Optional["LLMSummarizer"] = None,
-        session_id: Optional[str] = None,
+       self,
+       keep_last_N_turns : int  =3,
+       context_limits : int =3  ,  
+       summerizer : Optional["LLMSummarizer"] = None ,   
+       session_id  : Optional[str] = None  
     ):
-        assert context_limit >= 1
-        assert keep_last_n_turns >= 0
-        assert keep_last_n_turns <= context_limit, "keep_last_n_turns should not be greater than context_limit"
-
-        self.keep_last_n_turns = keep_last_n_turns
-        self.context_limit = context_limit
-        self.summarizer = summarizer
+        assert  keep_last_N_turns >=1 
+        assert  context_limits >=1 
+        assert  keep_last_N_turns <= context_limits , "keep_last_n_turns should not be greater than context_limit"
+        
+        self.keep_last_n_turns = keep_last_N_turns 
+        self.context_limit
+        self.summarizer =summerizer
         self.session_id = session_id or "default"
-
-        self._records: deque[Record] = deque()
+        
+        
+        self._record:deque[Record]  =deque()
         self._lock = asyncio.Lock()
+
+  
+        
 
     # --------- public API used by your runner ---------
     async def get_items(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
         """Return model-safe messages only (no metadata)."""
         async with self._lock:
-            data = list(self._records)
-        msgs = [self._sanitize_for_model(rec["msg"]) for rec in data]
-        return msgs[-limit:] if limit else msgs
-
+               data =list(self._record)
+               msgs = [self._sanitize_for_model(rec["msg"]) for rec in data]
+               return msgs[-limit] if limit else msgs
+               
     async def add_items(self, items: List[Dict[str, Any]]) -> None:
         """Append new items and, if needed, summarize older turns."""
         # 1) Ingest items
@@ -169,10 +174,14 @@ class SummarizingSession:
         return msg, meta
 
     @staticmethod
-    def _sanitize_for_model(msg: Dict[str, Any]) -> Dict[str, Any]:
-        """Drop anything not allowed in model calls."""
-        return {k: v for k, v in msg.items() if k in SummarizingSession._ALLOWED_MSG_KEYS}
+    def _sanitize_for_model(msg:dict[str,any]) -> dict[str,any] :
+            """Drop anything not allowed in model calls."""
+            return {k:v  for k,v in  msg.items() if k in  SummarizingSession._ALLOWED_MSG_KEYS
+                }
 
+        
+    
+    
     @staticmethod
     def _is_real_user_turn_start(rec: Record) -> bool:
         """True if record starts a *real* user turn (role=='user' and not synthetic)."""

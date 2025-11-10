@@ -28,7 +28,6 @@ def _is_user_msg(item:TResponseInputItem)-> bool:
 class TrimmingSession(SessionABC):
     """
     Keep only the last N *user turns* in memory.
-
     A turn = a user message and all subsequent items (assistant/tool calls/results)
     up to (but not including) the next user message.
     """
