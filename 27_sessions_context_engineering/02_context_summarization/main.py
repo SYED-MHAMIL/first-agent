@@ -162,8 +162,9 @@ class SummarizingSession:
         """
         msg = {k: v for k, v in it.items() if k in self._ALLOWED_MSG_KEYS}
         extra = {k: v for k, v in it.items() if k not in self._ALLOWED_MSG_KEYS}
-        meta = dict(extra.pop("metadata", {}))
+        meta = dict(extra.pop("metadata",{})) 
         meta.update(extra)
+    
 
         msg.setdefault("role", "user")
         msg.setdefault("content", str(it))
