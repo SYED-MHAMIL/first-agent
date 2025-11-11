@@ -24,21 +24,19 @@ class SummarizingSession:
 
     def __init__(
        self,
-       keep_last_N_turns : int  =3,
-       context_limits : int =3  ,  
-       summerizer : Optional["LLMSummarizer"] = None ,   
+       keep_last_n_turns : int  =3,
+       context_limit : int =3  ,  
+       summarizer : Optional["LLMSummarizer"] = None ,   
        session_id  : Optional[str] = None  
     ):
-        assert  keep_last_N_turns >=1 
-        assert  context_limits >=1 
-        assert  keep_last_N_turns <= context_limits , "keep_last_n_turns should not be greater than context_limit"
+        assert  keep_last_n_turns >=1 
+        assert  context_limit >=1 
+        assert  keep_last_n_turns <= context_limit , "keep_last_n_turns should not be greater than context_limit"
         
-        self.keep_last_n_turns = keep_last_N_turns 
-        self.context_limit
-        self.summarizer =summerizer
-        self.session_id = session_id or "default"
-        
-        
+        self.keep_last_n_turns = keep_last_n_turns 
+        self.context_limit = context_limit
+        self.summarizer =summarizer
+        self.session_id = session_id or "default"        
         self._record:deque[Record]  =deque()
         self._lock = asyncio.Lock()
 
@@ -48,17 +46,44 @@ class SummarizingSession:
     # --------- public API used by your runner ---------
     async def get_items(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
         """Return model-safe messages only (no metadata)."""
+        print("GETTING_DATA FROM _SEESION :")
         async with self._lock:
                data =list(self._record)
-               msgs = [self._sanitize_for_model(rec["msg"]) for rec in data]
-               return msgs[-limit] if limit else msgs
-               
+            #    msgs = [self._sanitize_for_model(rec["msg"]) for rec in data]
+               return data       
+                   
     async def add_items(self, items: List[Dict[str, Any]]) -> None:
         """Append new items and, if needed, summarize older turns."""
         # 1) Ingest items
         async with self._lock:
             print("ADD_ITEM_SESSION " , items)
+            self._record.append(items)
         
+    
+    def _split_msg_and_meta(self,it:Dict[str,any]) -> tuple[Dict[str,any],Dict[str,any]] :
+        """
+        Split input into (msg, meta):
+          - msg keeps only _ALLOWED_MSG_KEYS; if role/content missing, default them.
+          - everything else goes under meta (including nested "metadata" if provided).
+          - default synthetic=False for real user/assistant unless explicitly set.
+        """
+        
+        msg = {k:v for k,v in it if k in self._ALLOWED_MSG_KEYS}
+        extra = {k:v for k,v in it if k not in self._ALLOWED_MSG_KEYS}   
+        meta = extra.pop("metadata",{})
+        extra.update(meta)
+        
+        
+        msg.setdefault("role","user")
+        msg.setdefault("content", str(it))
+        
+        role =msg.get("role") 
+        if role in  ("user", "assistant") and  "synthetic" not in meta :
+            meta["synthetic"] = False
+        
+        return msg,meta        
+        
+    
         
     async def pop_item(self) -> Optional[Dict[str, Any]]:
         """Pop the latest message (model-safe), if any."""
