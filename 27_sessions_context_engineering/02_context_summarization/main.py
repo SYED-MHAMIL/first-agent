@@ -50,7 +50,8 @@ class SummarizingSession:
         async with self._lock:
                data =list(self._record)
             #    msgs = [self._sanitize_for_model(rec["msg"]) for rec in data]
-               return data       
+               return data          
+
                    
     async def add_items(self, items: List[Dict[str, Any]]) -> None:
         """Append new items and, if needed, summarize older turns."""
@@ -60,6 +61,33 @@ class SummarizingSession:
                 msg,meta = self._split_msg_and_meta(it)
                 self._record.append({"msg" : msg , "meta" : meta})   
                    
+            need_summary,boundary= self._summarize_decision_locked()
+        
+        if not need_summary:
+           self._normalize_synthesic_flag_locked()
+           return
+        
+        # prefix for summarization 
+        async with self._lock:
+            snapshots = list(self._record)
+            prefix_msgs = [rec for rec in snapshots[:boundary]]
+            
+        user_shadow, assistant_summary = await self._summarize(prefix_msgs)
+        
+        # 4) Re-check and apply summary atomically
+        async with self._lock:
+            still_need, new_boundary = self._summarize_decision_locked()
+            if not still_need:
+                self._normalize_synthetic_flags_locked()
+                return
+
+    
+                
+        
+               
+       
+
+                  
         
     
     def _split_msg_and_meta(self,it:Dict[str,any]) -> tuple[Dict[str,any],Dict[str,any]] :
@@ -86,10 +114,18 @@ class SummarizingSession:
         return msg,meta        
         
     
+    def _normalize_synthesic_flag_locked(self)->None:
+            """Ensure all real user/assistant records explicitly carry synthetic=False."""
+            for rec in self._record:
+                role =  rec['msg'].get("role")
+                if role in ("user", "assistant") and "synthetic" not in rec["meta"]:
+                    rec["meta"]["synthetic"] = False
+
+    
     @staticmethod
     def _is_real_user_turns(rec:Record)-> bool:
            """True if record starts a *real* user turn (role=='user' and not synthetic)."""
-           return(rec["msg"].get("role") == "user" and not  rec["meta"].get("role"))    
+           return(rec["msg"].get("role") == "user" and not  rec["meta"].get("role" , False))    
     
     
     def _summarize_decision_locked(self)-> Tuple[bool,int]:
@@ -106,7 +142,7 @@ class SummarizingSession:
         """
         
         user_starts:List[int] = [
-          i for i,d in enumerate(self._record) if d in self._is_real_user_turns(d)
+          i for i,rec in enumerate(self._record) if self._is_real_user_turns(rec)
         ]
         
         real_turns = len(user_starts)
@@ -114,7 +150,6 @@ class SummarizingSession:
         # Not over the limit → nothing to do
         if real_turns <= self.context_limit:
             return False, -1    
-        
         
         # if turns is 0 haha
         if self.keep_last_n_turns == 0 :
@@ -131,11 +166,7 @@ class SummarizingSession:
             return False,-1
         
         return True,boundary
-        
-        
-        
-         
-        
+           
     async def pop_item(self) -> Optional[Dict[str, Any]]:
         """Pop the latest message (model-safe), if any."""
         async with self._lock:
@@ -143,7 +174,6 @@ class SummarizingSession:
                 return None
             rec = self._records.pop()
             return dict(rec["msg"])
-
 
     async def clear_session(self) -> None:
         """Remove all records."""
@@ -189,6 +219,7 @@ async def main():
     await session.add_items([{"role": "assistant", "content": "Try to install a new firmware."}])
     await session.add_items([{"role": "user", "content": "I tried but I got another error now."}])
     await session.add_items([{"role": "assistant", "content": "Can you please provide me with the error code?"}])
+    
     await session.add_items([{"role": "user", "content": "It says 404 not found when I try to access the page."}])
     await session.add_items([{"role": "assistant", "content": "Are you connected to the internet?"}])
     await session.add_items([{"role": "user", "content": "Yes, I am connected to the internet."}])
