@@ -56,8 +56,10 @@ class SummarizingSession:
         """Append new items and, if needed, summarize older turns."""
         # 1) Ingest items
         async with self._lock:
-            print("ADD_ITEM_SESSION " , items)
-            self._record.append(items)
+            for it in items:
+                msg,meta = self._split_msg_and_meta(it)
+                self._record.append({"msg" : msg , "meta" : meta})   
+                   
         
     
     def _split_msg_and_meta(self,it:Dict[str,any]) -> tuple[Dict[str,any],Dict[str,any]] :
@@ -68,8 +70,8 @@ class SummarizingSession:
           - default synthetic=False for real user/assistant unless explicitly set.
         """
         
-        msg = {k:v for k,v in it if k in self._ALLOWED_MSG_KEYS}
-        extra = {k:v for k,v in it if k not in self._ALLOWED_MSG_KEYS}   
+        msg = {k:v for k,v in it.items() if k in self._ALLOWED_MSG_KEYS}
+        extra = {k:v for k,v in it.items() if k not in self._ALLOWED_MSG_KEYS}   
         meta = extra.pop("metadata",{})
         extra.update(meta)
         
@@ -84,6 +86,55 @@ class SummarizingSession:
         return msg,meta        
         
     
+    @staticmethod
+    def _is_real_user_turns(rec:Record)-> bool:
+           """True if record starts a *real* user turn (role=='user' and not synthetic)."""
+           return(rec["msg"].get("role") == "user" and not  rec["meta"].get("role"))    
+    
+    
+    def _summarize_decision_locked(self)-> Tuple[bool,int]:
+        """
+        Decide whether to summarize and compute the boundary index.
+
+        Returns:
+            (need_summary, boundary_idx)
+
+        If need_summary:
+          • boundary_idx is the earliest index among the last `keep_last_n_turns`
+            *real* user-turn starts.
+          • Everything before boundary_idx becomes the summary prefix.
+        """
+        
+        user_starts:List[int] = [
+          i for i,d in enumerate(self._record) if d in self._is_real_user_turns(d)
+        ]
+        
+        real_turns = len(user_starts)
+        
+        # Not over the limit → nothing to do
+        if real_turns <= self.context_limit:
+            return False, -1    
+        
+        
+        # if turns is 0 haha
+        if self.keep_last_n_turns == 0 :
+           return True,0
+        
+        # hahah if real turns is less keep last bro whose will i summerize
+        if real_turns < self.keep_last_n_turns :
+            return False,-1 
+        
+        # don't go ahead this boundary 
+        boundary =  user_starts[-self.keep_last_n_turns]
+
+        if boundary <=0:
+            return False,-1
+        
+        return True,boundary
+        
+        
+        
+         
         
     async def pop_item(self) -> Optional[Dict[str, Any]]:
         """Pop the latest message (model-safe), if any."""
