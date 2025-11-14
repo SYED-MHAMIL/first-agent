@@ -85,7 +85,29 @@ class SummarizingSession:
         #   keep last N-turn 
             suffix = snapshot[new_boundary:]
         
-        
+            self._records.clear()
+            
+            self._record.extend([
+                {
+                    "msg" :  {"role" : "user" ,"content" : user_shadow } ,
+                     "meta" :  { 
+                                  "synthetic": True,
+                                  "kind": "history_summary_prompt",
+                                  "summary_for_turns": f"< all before idx {new_boundary} >",
+                               } 
+                },
+                {    
+                     "msg" :  {"role" : "assistant" ,"content" : assistant_summary } ,
+                     "meta" :  { 
+                                  "synthetic": True,
+                                  "kind": "history_summary_prompt",
+                                  "summary_for_turns": f"< all before idx {new_boundary} >",
+                               } 
+                },
+            ])   
+            
+            
+            self._record.extend(suffix)     
                 
             
 

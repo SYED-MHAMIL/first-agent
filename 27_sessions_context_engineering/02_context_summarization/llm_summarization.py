@@ -76,7 +76,6 @@ class LLMSummarizer:
             if role in TOOL_ROLES and len(content)  > self.tool_trim_limit :
                 content =  content[:self.tool_trim_limit]
             return  f'{role.upper()}: {content}'
-            
         
         histotry_converssation = [s for msg in messages if (s:=to_snippet(msg))]    
             
