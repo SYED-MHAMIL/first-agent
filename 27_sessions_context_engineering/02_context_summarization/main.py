@@ -74,12 +74,20 @@ class SummarizingSession:
             
         user_shadow, assistant_summary = await self._summarize(prefix_msgs)
         
-        # 4) Re-check and apply summary atomically
+        # 4) Re-check and apply summary atomically may be user can add msg 
         async with self._lock:
             still_need, new_boundary = self._summarize_decision_locked()
             if not still_need:
                 self._normalize_synthetic_flags_locked()
                 return
+        
+            snapshot = list(self._records)
+        #   keep last N-turn 
+            suffix = snapshot[new_boundary:]
+        
+        
+                
+            
 
     
                 
