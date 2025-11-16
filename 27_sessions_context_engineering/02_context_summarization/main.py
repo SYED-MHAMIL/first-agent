@@ -108,7 +108,7 @@ class SummarizingSession:
             
             
             self._record.extend(suffix)     
-                
+            self._normalize_synthesic_flag_locked()    
             
 
     
