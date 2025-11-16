@@ -49,9 +49,13 @@ class SummarizingSession:
         print("GETTING_DATA FROM _SEESION :")
         async with self._lock:
                data =list(self._record)
-            #    msgs = [self._sanitize_for_model(rec["msg"]) for rec in data]
-               return data          
-
+               msgs = [self._sanitize_for_model(rec["msg"]) for rec in data]
+               return msgs          
+    
+    @staticmethod
+    def _sanitize_for_model(msg:Dict[str,any]) -> Dict[str,any]:
+        """Drop anything for llm calls"""
+        return {k:v for k,v in msg.items() if k in SummarizingSession._ALLOWED_MSG_KEYS }
                    
     async def add_items(self, items: List[Dict[str, Any]]) -> None:
         """Append new items and, if needed, summarize older turns."""
@@ -110,15 +114,7 @@ class SummarizingSession:
             self._record.extend(suffix)     
             self._normalize_synthesic_flag_locked()    
             
-
     
-                
-        
-               
-       
-
-                  
-        
     
     def _split_msg_and_meta(self,it:Dict[str,any]) -> tuple[Dict[str,any],Dict[str,any]] :
         """
