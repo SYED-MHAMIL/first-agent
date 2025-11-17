@@ -14,9 +14,9 @@ def make_pastry_sync():
     time.sleep(3)  # Simulate pastry preparation time
     print("\tPastry is ready!")
 
-def order_sync():
-    make_coffee_sync()
-    make_pastry_sync()
+# def order_sync():
+#     make_coffee_sync()
+#     make_pastry_sync()
 
 
 # order_sync()

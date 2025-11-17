@@ -46,12 +46,27 @@ class SummarizingSession:
     # --------- public API used by your runner ---------
     async def get_items(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
         """Return model-safe messages only (no metadata)."""
-        print("GETTING_DATA FROM _SEESION :")
+        print("GET DATA FROM GET_ITEM")
         async with self._lock:
                data =list(self._record)
-               msgs = [self._sanitize_for_model(rec["msg"]) for rec in data]
-               return msgs          
+               outs = [self._sanitize_for_model(rec["msg"]) for rec in data]
+               return  outs[-limit:] if limit else outs          
     
+    async def get_items_with_metadata(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+              return self.get_full_history()
+    
+    async def get_full_history(self,limit: Optional[int] =None)-> Dict[str,Any]:
+        """
+        Return combined history entries in the shape:
+          {"message": {role, content[, name]}, "metadata": {...}}
+        This is NOT sent to the model; for logs/UI/debugging only.
+        """
+        async with self._lock:
+            data = list(self._record)
+        out =[{"message":rec['msg'] , "metadata": rec['meta'] }  for rec in data]
+        return  out[-limit:] if limit else out 
+    
+        
     @staticmethod
     def _sanitize_for_model(msg:Dict[str,any]) -> Dict[str,any]:
         """Drop anything for llm calls"""
@@ -114,8 +129,6 @@ class SummarizingSession:
             self._record.extend(suffix)     
             self._normalize_synthesic_flag_locked()    
             
-    
-    
     def _split_msg_and_meta(self,it:Dict[str,any]) -> tuple[Dict[str,any],Dict[str,any]] :
         """
         Split input into (msg, meta):
@@ -138,8 +151,7 @@ class SummarizingSession:
             meta["synthetic"] = False
         
         return msg,meta        
-        
-    
+         
     def _normalize_synthesic_flag_locked(self)->None:
             """Ensure all real user/assistant records explicitly carry synthetic=False."""
             for rec in self._record:
@@ -261,9 +273,9 @@ async def main():
     print(f"\n\n[HISTORY]: {history}\n\n")
 
     print(f"\n\n[Using get_items_with_metadata method to get the full history of the session including the metadata for debugging and analysis purposes]\n\n")
-    # full_history = await session.get_items_with_metadata()
-    # print(f"\n\n[FULL HISTORY]: {full_history}\n\n")
-    # print(f"\n\n[FULL HISTORY LENGTH]: {len(full_history)}\n\n")
+    full_history = await session.get_items_with_metadata()
+    print(f"\n\n[FULL HISTORY]: {full_history}\n\n")
+    print(f"\n\n[FULL HISTORY LENGTH]: {len(full_history)}\n\n")
 
 if __name__ == "__main__":
     asyncio.run(main())
