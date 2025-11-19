@@ -180,7 +180,6 @@ async def main():
     # Call agent again
     result = await Runner.run(
         support_agent,
-        
         "Share total messages I sent on this session right",
         session=session 
     )

@@ -81,14 +81,16 @@ class LLMSummarizer:
             
         user_message =  "\n".join(histotry_converssation)     
         
-        response = Runner.run(
+        response =await Runner.run(
               self.client,
               user_message,
               run_config=RunConfig(
                   model_settings =ModelSettings(
-                    max_output_tokens=self.max_tokens
+                    max_output_tokens=self.max_tokens,
+
                 )
-              )
+              ),
+              
             
         )
         

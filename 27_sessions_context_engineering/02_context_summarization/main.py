@@ -53,7 +53,7 @@ class SummarizingSession:
                return  outs[-limit:] if limit else outs          
     
     async def get_items_with_metadata(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
-              return self.get_full_history()
+              return await self.get_full_history()
     
     async def get_full_history(self,limit: Optional[int] =None)-> Dict[str,Any]:
         """
@@ -100,12 +100,10 @@ class SummarizingSession:
                 self._normalize_synthetic_flags_locked()
                 return
         
-            snapshot = list(self._records)
+            snapshot = list(self._record)
         #   keep last N-turn 
             suffix = snapshot[new_boundary:]
-        
-            self._records.clear()
-            
+            self._record.clear()
             self._record.extend([
                 {
                     "msg" :  {"role" : "user" ,"content" : user_shadow } ,
@@ -124,10 +122,10 @@ class SummarizingSession:
                                } 
                 },
             ])   
-            
-            
             self._record.extend(suffix)     
-            self._normalize_synthesic_flag_locked()    
+            self._normalize_synthesic_flag_locked()
+                
+            
             
     def _split_msg_and_meta(self,it:Dict[str,any]) -> tuple[Dict[str,any],Dict[str,any]] :
         """
@@ -163,7 +161,7 @@ class SummarizingSession:
     @staticmethod
     def _is_real_user_turns(rec:Record)-> bool:
            """True if record starts a *real* user turn (role=='user' and not synthetic)."""
-           return(rec["msg"].get("role") == "user" and not  rec["meta"].get("role" , False))    
+           return(rec["msg"].get("role") == "user" and not  rec["meta"].get("synthetic" , False))    
     
     
     def _summarize_decision_locked(self)-> Tuple[bool,int]:
@@ -275,7 +273,7 @@ async def main():
     print(f"\n\n[Using get_items_with_metadata method to get the full history of the session including the metadata for debugging and analysis purposes]\n\n")
     full_history = await session.get_items_with_metadata()
     print(f"\n\n[FULL HISTORY]: {full_history}\n\n")
-    print(f"\n\n[FULL HISTORY LENGTH]: {len(full_history)}\n\n")
+    print(f"\n\n[FULL HISTORY LENGTH]: {len(full_history)}\n\n")        
 
 if __name__ == "__main__":
     asyncio.run(main())
